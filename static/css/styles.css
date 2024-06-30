@@ -1,0 +1,221 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1b1b1b;
+    color: #fff;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.dashboard {
+    width: 90%;
+    max-width: 1200px;
+    background-color: #2a2a2a;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #333;
+}
+
+.top-bar div {
+    display: flex;
+    align-items: center;
+}
+
+.top-bar i {
+    margin-right: 10px;
+}
+
+.main-content {
+    display: flex;
+    padding: 20px;
+}
+
+.map {
+    flex: 2;
+    margin-right: 20px;
+    background-color: #444;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.map input {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: #fff;
+}
+
+.map .map-display {
+    flex: 1;
+    background-color: #333;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    height: 300px; /* Fix height */
+}
+
+.location-info {
+    text-align: center;
+}
+
+.controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.welcome {
+    display: flex;
+    align-items: center;
+    background-color: #555;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.welcome i {
+    margin-right: 10px;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.buttons button {
+    background-color: #555;
+    border: none;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.buttons button i {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.buttons button:hover {
+    transform: scale(1.1);
+    background-color: #666;
+}
+
+.music-player {
+    background-color: #555;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.music-player img {
+    border-radius: 10px;
+    margin-right: 20px;
+}
+
+.music-player .track-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.car-info {
+    flex: 1;
+    background-color: #444;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.car-info .speed {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.car-info .car-image img {
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 20px;
+}
+
+.car-info .battery-status {
+    text-align: center;
+}
+
+.car-info .battery-status .distance {
+    margin-top: 10px;
+}
+
+/* Styles for search results */
+.search-results {
+    position: absolute;
+    top: 60px;
+    left: 20px;
+    right: 20px;
+    background-color: #333;
+    border-radius: 5px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.search-results .result-item {
+    padding: 10px;
+    border-bottom: 1px solid #444;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-results .result-item:hover {
+    background-color: #555;
+}
+
+/* Animation for hover effect on controls buttons */
+@keyframes buttonHover {
+    0% {
+        transform: scale(1);
+        background-color: #333;
+    }
+    50% {
+        transform: scale(1.1);
+        background-color: #555;
+    }
+    100% {
+        transform: scale(1);
+        background-color: #333;
+    }
+}
+
+.controls button {
+    padding: 10px;
+    background-color: #333;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.controls button:hover {
+    animation: buttonHover 0.6s forwards;
+}

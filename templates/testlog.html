@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Dashboard</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css' rel='stylesheet' />
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Other content here -->
+        <div id="map" class="map-display"></div>
+        <!-- Other content here -->
+    </div>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="/static/js/newFile.1.js"></script>
+    <script>
+        // Initialisation de Mapbox
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaGFuczIxMDQiLCJhIjoiY2x3azJiMWZqMTF4OTJqcGYwajN3dDhhZSJ9.F91A-tc6Tau0jqgU4Tx08w';
+        const map = new mapboxgl.Map({
+            container: 'map', // ID du conteneur
+            style: 'mapbox://styles/mapbox/streets-v11', // URL du style
+            center: [103.851959, 1.290270], // Position initiale [longitude, latitude]
+            zoom: 12 // Zoom initial
+        });
+
+        // Marqueurs de départ et d'arrivée (à modifier selon vos besoins)
+        const startPoint = [103.851959, 1.290270];
+        const endPoint = [103.8185, 1.3521];
+        
+        const startMarker = new mapboxgl.Marker({ color: 'green' })
+            .setLngLat(startPoint)
+            .setPopup(new mapboxgl.Popup().setText('Point de départ'))
+            .addTo(map);
+
+        const endMarker = new mapboxgl.Marker({ color: 'red' })
+            .setLngLat(endPoint)
+            .setPopup(new mapboxgl.Popup().setText('Point d\'arrivée'))
+            .addTo(map);
+
+        // Fonction pour calculer la distance entre deux points (en km)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Rayon de la Terre en km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Fonction pour mettre à jour la position en temps réel
+        function updatePosition(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            // Marqueur de la position actuelle
+            if (!map.currentPositionMarker) {
+                map.currentPositionMarker = new mapboxgl.Marker({ color: 'blue' })
+                    .setLngLat([lon, lat])
+                    .addTo(map);
+            } else {
+                map.currentPositionMarker.setLngLat([lon, lat]);
+            }
+
+            // Mettre à jour la vue de la carte
+            map.setCenter([lon, lat]);
+
+            // Calculer les distances
+            const distanceToStart = calculateDistance(lat, lon, startPoint[1], startPoint[0]);
+            const distanceToEnd = calculateDistance(lat, lon, endPoint[1], endPoint[0]);
+
+            // Afficher les distances
+            console.log(`Distance au point de départ: ${distanceToStart.toFixed(2)} km`);
+            console.log(`Distance au point d'arrivée: ${distanceToEnd.toFixed(2)} km`);
+        }
+
+        // Vérifier si la géolocalisation est disponible
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(updatePosition, (error) => {
+                console.error('Erreur de géolocalisation:', error);
+            }, {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            });
+        } else {
+            console.error('La géolocalisation n\'est pas supportée par ce navigateur.');
+        }
+    </script>
+</body>
+</html>
