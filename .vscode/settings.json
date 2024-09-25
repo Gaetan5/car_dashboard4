@@ -1,3 +1,8 @@
 {
-    "CodeGPT.apiKey": "CodeGPT Plus Beta"
+    "CodeGPT.apiKey": "CodeGPT Plus Beta",
+    "githubPullRequests.remotes": [
+        "origin",
+        "upstream",
+        "user_name=\"ekorogaetan5@gmail.com\""
+    ]
 }

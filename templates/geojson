@@ -1,0 +1,50 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "type": "Carrefour",
+          "name": "Carrefour 1"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [103.852, 1.290]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "type": "Carrefour",
+          "name": "Carrefour 2"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [103.853, 1.291]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "type": "Station Essence",
+          "name": "Station Essence 1"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [103.854, 1.292]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "type": "Station Essence",
+          "name": "Station Essence 2"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [103.855, 1.293]
+        }
+      }
+    ]
+  }
+  

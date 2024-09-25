@@ -8,7 +8,7 @@ socketio = SocketIO(app)
 
 @app.route('/')
 def index():
-    return render_template('indextest.html')
+    return render_template('index.html')
 
 def background_task():
     while True:
@@ -21,5 +21,5 @@ def background_task():
 def test_connect():
     socketio.start_background_task(target=background_task)
 
-if __name__ == '_main_':
+if __name__ == '__main__':
     socketio.run(app)

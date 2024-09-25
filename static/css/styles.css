@@ -1,7 +1,16 @@
+:root {
+    --background-color: #1b1b1b;
+    --text-color: #fff;
+    --accent-color: #007BFF;
+    --secondary-background: #2a2a2a;
+    --tertiary-background: #333;
+    --highlight-color: #666;
+}
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #1b1b1b;
-    color: #fff;
+    background-color: var(--background-color);
+    color: var(--text-color);
     margin: 0;
     display: flex;
     justify-content: center;
@@ -12,7 +21,7 @@ body {
 .dashboard {
     width: 90%;
     max-width: 1200px;
-    background-color: #2a2a2a;
+    background-color: var(--secondary-background);
     border-radius: 10px;
     overflow: hidden;
 }
@@ -21,7 +30,7 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 20px;
-    background-color: #333;
+    background-color: var(--tertiary-background);
 }
 
 .top-bar div {
@@ -41,7 +50,7 @@ body {
 .map {
     flex: 2;
     margin-right: 20px;
-    background-color: #444;
+    background-color: var(--tertiary-background);
     padding: 20px;
     border-radius: 10px;
     display: flex;
@@ -49,26 +58,68 @@ body {
     position: relative;
 }
 
-.map input {
+.map input[type="text"] {
+    width: calc(100% - 95px); /* Largeur ajustée pour le champ de recherche */
     padding: 10px;
     margin-bottom: 20px;
     border: none;
     border-radius: 5px;
-    background-color: #333;
-    color: #fff;
+    background-color: var(--tertiary-background);
+    color: var(--text-color);
+    font-size: 16px; /* Taille de police recommandée */
 }
 
 .map .map-display {
     flex: 1;
-    background-color: #333;
+    background-color: var(--tertiary-background);
     margin-bottom: 20px;
     border-radius: 10px;
-    height: 300px; /* Fix height */
+    height: 300px;
+}
+
+.map #searchButton {
+    width: 40px; /* Largeur du bouton de recherche */
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--highlight-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 16px; /* Taille de police recommandée */
+}
+
+.map #searchButton:hover {
+    background-color: var(--accent-color);
+}
+
+#map { width: 100%; height: 400px; }
+
+.location-info, .search-results {
+     margin-top: 10px;
+ }
+
+.result-item {
+    cursor: pointer; 
+    padding: 5px; 
+    border-bottom: 1px solid #ccc; 
 }
 
 .location-info {
+    display: flex;
     text-align: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #3a0f0f3b;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+.location-info span {
+    font-size: 14px;
+    margin: 0 10px;
+}
+
 
 .controls {
     flex: 1;
@@ -79,7 +130,7 @@ body {
 .welcome {
     display: flex;
     align-items: center;
-    background-color: #555;
+    background-color: var(--highlight-color);
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -97,14 +148,14 @@ body {
 }
 
 .buttons button {
-    background-color: #555;
+    background-color: var(--highlight-color);
     border: none;
     padding: 20px;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: #fff;
+    color: var(--text-color);
     cursor: pointer;
     transition: transform 0.3s, background-color 0.3s;
 }
@@ -116,11 +167,11 @@ body {
 
 .buttons button:hover {
     transform: scale(1.1);
-    background-color: #666;
+    background-color: var(--highlight-color);
 }
 
 .music-player {
-    background-color: #555;
+    background-color: var(--highlight-color);
     padding: 20px;
     border-radius: 10px;
     display: flex;
@@ -139,7 +190,7 @@ body {
 
 .car-info {
     flex: 1;
-    background-color: #444;
+    background-color: var(--tertiary-background);
     padding: 20px;
     border-radius: 10px;
     display: flex;
@@ -155,67 +206,30 @@ body {
 
 .car-info .car-image img {
     width: 100%;
-    max-width: 300px;
+    max-width: 200px;
     margin-bottom: 20px;
 }
 
 .car-info .battery-status {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 }
 
-.car-info .battery-status .distance {
-    margin-top: 10px;
-}
-
-/* Styles for search results */
-.search-results {
-    position: absolute;
-    top: 60px;
-    left: 20px;
-    right: 20px;
-    background-color: #333;
+.battery-progress {
+    width: 100%;
+    height: 20px;
+    background-color: var(--highlight-color);
     border-radius: 5px;
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 10;
+    margin-bottom: 10px;
 }
 
-.search-results .result-item {
-    padding: 10px;
-    border-bottom: 1px solid #444;
-    cursor: pointer;
-    transition: background-color 0.3s;
+.battery-level {
+    font-size: 18px;
+    margin-bottom: 10px;
 }
 
-.search-results .result-item:hover {
-    background-color: #555;
-}
-
-/* Animation for hover effect on controls buttons */
-@keyframes buttonHover {
-    0% {
-        transform: scale(1);
-        background-color: #333;
-    }
-    50% {
-        transform: scale(1.1);
-        background-color: #555;
-    }
-    100% {
-        transform: scale(1);
-        background-color: #333;
-    }
-}
-
-.controls button {
-    padding: 10px;
-    background-color: #333;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    transition: transform 0.3s, background-color 0.3s;
-}
-
-.controls button:hover {
-    animation: buttonHover 0.6s forwards;
+.distance {
+    font-size: 14px;
+    color: var(--highlight-color);
 }

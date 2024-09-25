@@ -1,97 +1,330 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Dashboard</title>
+    <title>Tableau de Bord de Voiture</title>
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
 </head>
 <body>
     <div class="dashboard">
-        <!-- Other content here -->
-        <div id="map" class="map-display"></div>
-        <!-- Other content here -->
+        <!-- Barre supérieure avec batterie, météo, température et date/heure -->
+        <div class="top-bar">
+            <div class="battery">
+                <i class="fas fa-battery-half"></i>
+                <span id="batteryPercent">85%</span>
+            </div>
+            <div class="temp">
+                <img id="weatherIcon" src="" alt="Icône météo">
+                <span id="weatherDescription"></span>
+                <span id="temperature">22°C</span>
+            </div>
+            <div class="date-time">
+                <span id="currentDate"></span>
+                <span id="currentTime"></span>
+            </div>
+        </div>
+        <div class="main-content">
+            <!-- Carte avec Mapbox et recherche de destination -->
+            <div class="map">
+                <div class="search-container">
+                    <input type="text" id="searchInput" list="suggestions" placeholder="Recherchez votre destination">
+                    <datalist id="suggestions"></datalist>
+                    <button id="searchButton"><i class="fas fa-search"></i></button>
+                    <select id="mapStyle">
+                        <option value="streets-v11">Vue Rue</option>
+                        <option value="satellite-v9">Vue Satellite</option>
+                        <option value="outdoors-v11">Vue Extérieur</option>
+                        <option value="light-v11">Vue Claire</option>
+                        <option value="dark-v11">Vue Sombre</option>
+                    </select>
+                </div>
+                <div id="map" class="map-display"></div>
+                <div class="location-info">
+                    <span id="startLocation"><i class="fas fa-location-dot"></i></br> <strong>En cours de localisation...</strong></span>
+                    <span id="endLocation"><i class="fas fa-map-marker-alt"></i></br> <strong>Entrez la destination...</strong></span>
+                    <span id="distance"><i class="fas fa-ruler"></i></br> <strong>En cours...</strong></span>
+                    <span id="energyConsumption"><i class="fas fa-bolt"></i></br> <strong>En cours...</strong></span>
+                </div>
+            </div>
+            <!-- Panneau de contrôle avec options diverses -->
+            <div class="controls">
+                <div class="welcome">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Bonjour Kurnia Majid, puis-je vous aider ?</span>
+                </div>
+                <div class="buttons">
+                    <button><i class="fas fa-fan"></i><span>Climatisation</span></button>
+                    <button><i class="fas fa-comments"></i><span>Messages</span></button>
+                    <button><i class="fas fa-map-signs"></i><span>Navigation</span></button>
+                    <button><i class="fas fa-music"></i><span>Musique</span></button>
+                    <button><i class="fas fa-charging-station"></i><span>Station de Recharge</span></button>
+                    <button><i class="fas fa-phone"></i><span>Téléphone</span></button>
+                </div>
+                <div class="music-player">
+                    <img src="muzik.jpg" alt="Pochette d'album">
+                    <div class="track-info">
+                        <span>Starboy</span>
+                        <span>4:56</span>
+                        <span>Happier</span>
+                        <span>7:48</span>
+                        <span>Sans titre</span>
+                        <span>5:40</span>
+                        <span>Bonjour</span>
+                        <span>3:50</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Informations sur la voiture et batterie -->
+            <div class="car-info">
+                <div class="speed">
+                    <span id="speedValue">156</span>
+                    <span>km/h</span>
+                </div>
+                <div class="car-image">
+                    <img src="https://via.placeholder.com/300" alt="Voiture">
+                </div>
+                <div class="battery-status">
+                    <div id="batteryProgress" class="battery-progress"></div>
+                    <span id="batteryLevel">32%</span>
+                    <div class="distance">20 km Distance</div>
+                </div>
+            </div>
+        </div>
     </div>
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <script src="/static/js/newFile.1.js"></script>
     <script>
-        // Initialisation de Mapbox
-        mapboxgl.accessToken = 'pk.eyJ1IjoiaGFuczIxMDQiLCJhIjoiY2x3azJiMWZqMTF4OTJqcGYwajN3dDhhZSJ9.F91A-tc6Tau0jqgU4Tx08w';
-        const map = new mapboxgl.Map({
-            container: 'map', // ID du conteneur
-            style: 'mapbox://styles/mapbox/streets-v11', // URL du style
-            center: [103.851959, 1.290270], // Position initiale [longitude, latitude]
-            zoom: 12 // Zoom initial
-        });
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialisation des tokens et variables nécessaires
+            const mapboxToken = 'pk.eyJ1IjoiaGFuczIxMDQiLCJhIjoiY2x3azJiMWZqMTF4OTJqcGYwajN3dDhhZSJ9.F91A-tc6Tau0jqgU4Tx08w';
+            const weatherApiKey = 'da470b23db27b43abb06c65810ff4714';
+            const openCageApiKey = '6fbe06b1b8044fb18c9a61d3b703ee6d';
 
-        // Marqueurs de départ et d'arrivée (à modifier selon vos besoins)
-        const startPoint = [103.851959, 1.290270];
-        const endPoint = [103.8185, 1.3521];
-        
-        const startMarker = new mapboxgl.Marker({ color: 'green' })
-            .setLngLat(startPoint)
-            .setPopup(new mapboxgl.Popup().setText('Point de départ'))
-            .addTo(map);
+            let currentLocation = null;
+            let destinationLocation = null;
+            let currentLocationMarker = null;
+            let destinationMarker = null;
+            let routeLine = null;
 
-        const endMarker = new mapboxgl.Marker({ color: 'red' })
-            .setLngLat(endPoint)
-            .setPopup(new mapboxgl.Popup().setText('Point d\'arrivée'))
-            .addTo(map);
-
-        // Fonction pour calculer la distance entre deux points (en km)
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Rayon de la Terre en km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        // Fonction pour mettre à jour la position en temps réel
-        function updatePosition(position) {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-
-            // Marqueur de la position actuelle
-            if (!map.currentPositionMarker) {
-                map.currentPositionMarker = new mapboxgl.Marker({ color: 'blue' })
-                    .setLngLat([lon, lat])
-                    .addTo(map);
-            } else {
-                map.currentPositionMarker.setLngLat([lon, lat]);
+            // Fonction pour obtenir les données météo
+            async function getWeatherData(lat, lon) {
+                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherApiKey}&units=metric`;
+                const response = await fetch(url);
+                const data = await response.json();
+                return data;
             }
 
-            // Mettre à jour la vue de la carte
-            map.setCenter([lon, lat]);
+            // Mise à jour des informations météo sur l'interface
+            function updateWeather(data) {
+                const weatherIcon = document.getElementById('weatherIcon');
+                const weatherDescription = document.getElementById('weatherDescription');
+                const temperature = document.getElementById('temperature');
+                weatherIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+                weatherDescription.textContent = data.weather[0].description;
+                temperature.textContent = `${Math.round(data.main.temp)}°C`;
+            }
 
-            // Calculer les distances
-            const distanceToStart = calculateDistance(lat, lon, startPoint[1], startPoint[0]);
-            const distanceToEnd = calculateDistance(lat, lon, endPoint[1], endPoint[0]);
+            // Fonction pour obtenir la position de l'utilisateur
+            function getUserLocation() {
+                return new Promise((resolve, reject) => {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(position => {
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+                            resolve({ lat, lon });
+                        }, error => {
+                            console.error('Erreur lors de l\'obtention de la localisation:', error);
+                            reject(error);
+                        });
+                    } else {
+                        console.error('La géolocalisation n\'est pas supportée par votre navigateur.');
+                        reject(new Error('Géolocalisation non supportée'));
+                    }
+                });
+            }
 
-            // Afficher les distances
-            console.log(`Distance au point de départ: ${distanceToStart.toFixed(2)} km`);
-            console.log(`Distance au point d'arrivée: ${distanceToEnd.toFixed(2)} km`);
-        }
-
-        // Vérifier si la géolocalisation est disponible
-        if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(updatePosition, (error) => {
-                console.error('Erreur de géolocalisation:', error);
-            }, {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
+            // Initialisation de la carte Mapbox
+            mapboxgl.accessToken = mapboxToken;
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [103.851959, 1.290270],
+                zoom: 15.5,
+                pitch: 48.5,
+                bearing: -17.5
             });
-        } else {
-            console.error('La géolocalisation n\'est pas supportée par ce navigateur.');
-        }
+
+            // Ajout des contrôles de navigation et de géolocalisation à la carte
+            map.addControl(new mapboxgl.NavigationControl());
+            map.addControl(new mapboxgl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true
+                },
+                trackUserLocation: true
+            }));
+
+            // Fonction pour mettre à jour la localisation et l'itinéraire
+            async function updateLocationAndRoute() {
+                try {
+                    const { lat, lon } = await getUserLocation();
+                    currentLocation = { lat, lon };
+
+                    if (currentLocationMarker) {
+                        currentLocationMarker.remove();
+                    }
+
+                    currentLocationMarker = new mapboxgl.Marker({ color: 'blue' })
+                        .setLngLat([lon, lat])
+                        .addTo(map);
+
+                    const weatherData = await getWeatherData(lat, lon);
+                    updateWeather(weatherData);
+
+                    document.getElementById('startLocation').innerHTML = `<i class="fas fa-location-dot"></i><br>Lat: ${lat}, Lon: ${lon}`;
+                    map.setCenter([lon, lat]);
+
+                    if (destinationLocation) {
+                        calculateRoute(currentLocation, destinationLocation);
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la mise à jour de la localisation et de l\'itinéraire:', error);
+                }
+            }
+
+            // Fonction pour calculer l'itinéraire avec l'API Mapbox Directions
+            async function calculateRoute(start, end) {
+                const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lon},${start.lat};${end.lon},${end.lat}?geometries=geojson&access_token=${mapboxToken}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                const route = data.routes[0].geometry;
+
+                if (routeLine) {
+                    map.removeLayer('route');
+                    map.removeSource('route');
+                }
+
+                map.addSource('route', {
+                    'type': 'geojson',
+                    'data': {
+                        'type': 'Feature',
+                        'properties': {},
+                        'geometry': route
+                    }
+                });
+
+                map.addLayer({
+                    'id': 'route',
+                    'type': 'line',
+                    'source': 'route',
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        'line-color': '#FFD700',
+                        'line-width': 5
+                    }
+                });
+
+                const distance = (data.routes[0].distance / 1000).toFixed(2);
+                const duration = (data.routes[0].duration / 60).toFixed(2);
+
+                document.getElementById('distance').innerHTML = `<i class="fas fa-ruler"></i><br>Distance: ${distance} km`;
+                document.getElementById('energyConsumption').innerHTML = `<i class="fas fa-bolt"></i><br>Durée: ${duration} min`;
+            }
+
+            // Initialisation des suggestions de destinations
+            const suggestions = [
+                "Tour Eiffel, Paris",
+                "Statue de la Liberté, New York",
+                "Big Ben, Londres",
+                "Colisée, Rome",
+                "Grande Muraille de Chine, Chine"
+            ];
+
+            const suggestionsList = document.getElementById('suggestions');
+            suggestions.forEach(suggestion => {
+                const option = document.createElement('option');
+                option.value = suggestion;
+                suggestionsList.appendChild(option);
+            });
+
+            // Fonction pour effectuer la recherche de destination
+            async function searchDestination() {
+                const destination = document.getElementById('searchInput').value;
+                if (destination) {
+                    const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(destination)}&key=${openCageApiKey}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    const result = data.results[0];
+
+                    if (result) {
+                        destinationLocation = {
+                            lat: result.geometry.lat,
+                            lon: result.geometry.lng
+                        };
+
+                        if (destinationMarker) {
+                            destinationMarker.remove();
+                        }
+
+                        destinationMarker = new mapboxgl.Marker({ color: 'red' })
+                            .setLngLat([destinationLocation.lon, destinationLocation.lat])
+                            .addTo(map);
+
+                        document.getElementById('endLocation').innerHTML = `<i class="fas fa-map-marker-alt"></i><br>${destination}`;
+                        calculateRoute(currentLocation, destinationLocation);
+
+                        // Réinitialisation de la barre de recherche après la sélection
+                        document.getElementById('searchInput').value = '';
+                    } else {
+                        alert('Destination non trouvée.');
+                    }
+                } else {
+                    alert('Veuillez entrer une destination.');
+                }
+            }
+
+            // Ajout d'un écouteur d'événements pour la recherche de destination
+            document.getElementById('searchButton').addEventListener('click', searchDestination);
+
+            // Ajout de l'écouteur pour la touche "Entrée"
+            document.getElementById('searchInput').addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    searchDestination();
+                }
+            });
+
+            // Écouteur pour le changement de style de carte
+            document.getElementById('mapStyle').addEventListener('change', (event) => {
+                map.setStyle(`mapbox://styles/mapbox/${event.target.value}`);
+            });
+
+            // Mise à jour de la date et de l'heure en temps réel
+            function updateDateTime() {
+                const now = new Date();
+                const date = now.toLocaleDateString('fr-FR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                const time = now.toLocaleTimeString('fr-FR');
+                document.getElementById('currentDate').textContent = date;
+                document.getElementById('currentTime').textContent = time;
+            }
+            setInterval(updateDateTime, 1000);
+
+            // Mise à jour de la localisation et de l'itinéraire toutes les 10 secondes
+            setInterval(updateLocationAndRoute, 10000);
+
+            // Mise à jour initiale
+            updateLocationAndRoute();
+        });
     </script>
 </body>
 </html>
